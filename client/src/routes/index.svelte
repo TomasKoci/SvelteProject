@@ -2,11 +2,16 @@
 	import axios from "axios";
 	let totaltime = 0;
 	let id = null;
+	let haswon = 0;
+
+	let wins = 0;
+	let losses = 0;
+	let draws = 0;
 
 	import { onDestroy, onMount } from 'svelte';
 	onMount(async()=>{
 		id = localStorage.getItem('id');
-
+		// localStorage.removeItem('id');
 	})
 
 	async function doFakeGet() {
@@ -14,22 +19,29 @@
 			id: id
 		};
 		const res = await axios.post('http://localhost:8080/api/Record/a', record);
-		console.log(res);
-		totaltime = res.data;
+		// console.log(res);
+		totaltime = res.data.time;
+		wins = res.data.wins;
+		losses = res.data.losses;
+		draws = res.data.draws;
 	}
 
 	async function doPost() {
 		CxCoption();
 		const record = {
 			time: time,
-			id: id
+			id: id,
+			haswon: haswon
 		};
 		const res = await axios.post('http://localhost:8080/api/Record', record);
+		console.log(res.data.wins);
 		if(id == null){		
 		id = res.data;
 		localStorage.setItem('id', id)
 		}
-	
+		wins = res.data.wins;
+		losses = res.data.losses;
+		draws = res.data.draws;
 		// console.log(id);
 	}
 
@@ -72,6 +84,7 @@
 	// creates board and moves / lets player to make the move
 	const startgame = (event) => {
 		gamedone = false;
+		haswon = 0;
 		play = true;
 		movecounter = 1;
 		if (event.target.innerHTML == 'crosses') {
@@ -142,6 +155,7 @@
 		movecounter += 1;
 
 		if (checkForWin()) {
+			haswon = -1;
 			alert('You have lost... Next game will be better!');
 			return;
 		}
@@ -163,6 +177,7 @@
 		playermove = false;
 		if (checkForWin()) {
 			gamedone = true;
+			haswon = 1;
 			alert('You have won... CG!');
 			return;
 		}
@@ -245,10 +260,14 @@
 	</div>
 <br>
 	<div class="grid grid-cols-1 grid-rows-2 w-full">
-		<button on:click={doFakeGet} class="rounded-2xl bg-purple-400 h-10 w-1/3 place-self-center">What's the sum of my playtime?</button>
+		<button on:click={doFakeGet} class="rounded-2xl bg-purple-400 h-10 w-1/3 place-self-center">What are my stats?</button>
 		{#if totaltime != 0}
 			<div class="place-self-center text-2xl text-yellow-200 border-2 p-6 m-2">
-				TotalTimePlayed: {totaltime}
+				YourID: {id} <br>
+				Total time played: {totaltime} <br>
+				Number of wins: {wins}<br>
+				Number of losses: {losses}<br>
+				Number of draws: {draws} 				
 			</div>
 		{/if}	
 	</div>

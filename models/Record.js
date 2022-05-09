@@ -5,6 +5,15 @@ const RecordSchema = new Schema({
     type: Number, //number of seconds
     required: true,
   },
+  wins: {
+    type: Number,
+  },
+  losses: {
+    type: Number,
+  },
+  draws: {
+    type: Number,
+  },
 });
 
 const Record = model("record", RecordSchema);
